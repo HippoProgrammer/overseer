@@ -11,9 +11,9 @@ RUN wget -q -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releas
 && chmod +x /usr/local/bin/dumb-init
 
 # copy requirements file
-COPY pyproject.toml ./
+COPY requirements.txt ./
 # install required dependencies
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # copy the source code
 COPY src ./src
