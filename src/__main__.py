@@ -2,10 +2,12 @@ import aiohttp
 import asyncpg
 import discord
 import json
-import os
+import os, sys
 from discord.ext import commands
 from typing import Optional, List, Literal
 from aiolimiter import AsyncLimiter
+import logging
+import logging.handlers
 
 __version__ = "v0.1.0"
 
@@ -86,3 +88,11 @@ class Overseer(commands.Bot): # bot class
 
     def run(self, *args, **kwargs) -> None:
         super().run(self.config["token"])
+
+handler = logging.handlers.StreamHandler(
+    stream=sys.stdout
+)
+
+if __name__ == "__main__":
+    bot = Overseer()
+    bot.run(log_handler=handler, log_level=logging.DEBUG)
