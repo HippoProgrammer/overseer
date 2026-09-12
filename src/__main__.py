@@ -47,7 +47,7 @@ class Overseer(commands.Bot): # bot class
             }
         ) # create a session for connecting to the NS API
 
-        for cog in os.listdir("cogs"):
+        for cog in os.listdir("./src/cogs"):
             try:
                 if cog.endswith(".py"):
                     await self.load_extension(f"cogs.{cog[:-3]}")
