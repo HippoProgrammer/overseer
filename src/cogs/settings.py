@@ -13,11 +13,6 @@ def main_settings() -> discord.Embed:
         color=discord.Color.random(),
     )
     embed.add_field(
-        name=":white_check_mark: Verification Settings",
-        value="Change settings for the Verification module.",
-        inline=False,
-    )
-    embed.add_field(
         name=":gear: Guild Settings",
         value="Change settings for the guild.",
         inline=False,
@@ -53,15 +48,6 @@ class Prompt(discord.ui.Modal, title="Bloo Configuration"):
                     label="Welcome Message",
                     placeholder="Enter your welcome message here. (Leave blank to clear)",
                     max_length=500,
-                    style=discord.TextStyle.paragraph,
-                )
-            )
-        elif mode.lower() == "verification":
-            self.add_item(
-                discord.ui.TextInput(
-                    label="Verification Message",
-                    placeholder="Enter your verification message here. (Leave blank to clear)",
-                    max_length=750,
                     style=discord.TextStyle.paragraph,
                 )
             )
@@ -315,101 +301,6 @@ class NSVRoleView(discord.ui.View):
     ):
         await interaction.response.edit_message(
             view=VerificationView(self.bot, interaction.message.embeds[0], self.list_settings))
-
-
-class VerificationView(discord.ui.View):
-    def __init__(
-            self,
-            bot: Bloo,
-            embed: discord.Embed,
-            current_settings: Optional[List[asyncpg.Record]] = None,
-    ):
-        super().__init__()
-        self.bot = bot
-        self.embed = embed
-        self.internal_settings = current_settings[0] if current_settings else None
-        self.list_settings = current_settings if current_settings else None
-
-    @discord.ui.button(
-        label="Enable/Disable Verification",
-        style=discord.ButtonStyle.danger,
-        custom_id="verification_toggle",
-        emoji="🎛️",
-    )
-    async def verification_toggle(
-            self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
-        if self.internal_settings:
-            await self.bot.execute(
-                "UPDATE nsv_settings SET force_verification = $1 WHERE guild_id = $2",
-                not self.internal_settings["force_verification"],
-                interaction.guild.id,
-            )
-            self.list_settings = await self.bot.fetch(
-                "SELECT * FROM nsv_settings WHERE guild_id = $1", interaction.guild.id
-            )
-            self.internal_settings = self.list_settings[0]
-            self.embed.set_field_at(
-                0,
-                name="Forced Verification Status",
-                value="Enabled"
-                if self.internal_settings["force_verification"]
-                else "Disabled",
-            )
-            await interaction.response.edit_message(embed=self.embed, view=self)
-
-        else:
-            await interaction.response.send_message(
-                "You need to set up your role settings first!",
-                ephemeral=True,
-            )
-
-    @discord.ui.button(
-        label="Set Verification Message",
-        style=discord.ButtonStyle.blurple,
-        custom_id="verification_message",
-        emoji="✉️",
-    )
-    async def verification_message(
-            self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
-        await interaction.response.send_modal(Prompt(self.bot, "verification", self.list_settings))
-
-    @discord.ui.button(
-        label="Set Roles",
-        style=discord.ButtonStyle.blurple,
-        custom_id="verification_roles",
-        emoji="👥",
-    )
-    async def verification_roles(
-            self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
-        await interaction.response.edit_message(view=NSVRoleView(self.bot, self.list_settings))
-
-    @discord.ui.button(
-        label="Set Region",
-        style=discord.ButtonStyle.blurple,
-        custom_id="verification_region",
-        emoji="🌎",
-    )
-    async def verification_region(
-            self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
-        await interaction.response.send_modal(Prompt(self.bot, "region", self.list_settings))
-
-    @discord.ui.button(
-        label="Go Back",
-        style=discord.ButtonStyle.secondary,
-        custom_id="go_back",
-    )
-    async def go_back(
-            self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
-        await interaction.response.edit_message(
-            embed=main_settings(),
-            view=SettingsView(self.bot),
-        )
-
 
 class WelcomeView(discord.ui.View):
 
