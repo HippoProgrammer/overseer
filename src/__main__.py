@@ -16,7 +16,7 @@ class Overseer(commands.Bot): # bot class
         intents = discord.Intents.all() # we need all Intents except for presences
         intents.presences = False # so we manually disable those
         super().__init__(
-            command_prefix="o>"
+            command_prefix="o>",
             intents=intents,
             help_command=None,
         )
