@@ -19,13 +19,13 @@ class Overseer(commands.Bot): # bot class
         )
         self.pool: Optional[asyncpg.Pool] = None # pool for DB connections
         self.config = {
-            "token" = os.getenv("BOT_TOKEN"),
-            "useragent" = os.getenv("NS_USERAGENT"),
-            "db_host" = os.getenv("POSTGRES_HOST"),
-            "db_port" = os.getenv("POSTGRES_PORT"),
-            "db_name" = os.getenv("POSTGRES_DB"),
-            "db_user" = os.getenv("POSTGRES_USER"),
-            "db_pass" = os.getenv("POSTGRES_PASSWORD")
+            "token": os.getenv("BOT_TOKEN"),
+            "useragent": os.getenv("NS_USERAGENT"),
+            "db_host": os.getenv("POSTGRES_HOST"),
+            "db_port": os.getenv("POSTGRES_PORT"),
+            "db_name": os.getenv("POSTGRES_DB"),
+            "db_user": os.getenv("POSTGRES_USER"),
+            "db_pass": os.getenv("POSTGRES_PASSWORD")
         } # fetch config from environment variables
         self.session = None # aiohttp session for NS API requests
         self.limiter = AsyncLimiter(25, 30) # rate limiter for NS API requests
