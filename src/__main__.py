@@ -50,6 +50,7 @@ class Overseer(commands.Bot): # bot class
         for cog in os.listdir("./src/cogs"):
             try:
                 if cog.endswith(".py"):
+                    print(f"Loading cog {cog}")
                     await self.load_extension(f"cogs.{cog[:-3]}")
             except discord.ext.commands.errors.NoEntryPointError:
                 pass
