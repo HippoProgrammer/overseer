@@ -7,38 +7,42 @@ from discord.ext import commands
 from typing import Optional, List, Literal
 from aiolimiter import AsyncLimiter
 
+__version__ = "v0.1.0"
 
-class Bloo(commands.Bot):
+class Overseer(commands.Bot): # bot class
     def __init__(self):
+        intents = discord.Intents.all() # we need all Intents except for presences
+        intents.presences = False # so we manually disable those
         super().__init__(
-            command_prefix="b>",
-            intents=discord.Intents.all(),
+            intents=intents,
             help_command=None,
         )
-        self.scam_domains = None
-        self.pool: Optional[asyncpg.Pool] = None
-        self.config = json.load(open("config.json"))
-        self.session = None
-        self.limiter = AsyncLimiter(25, 30)
-        """
-        The watchlist is a dictionary with the following keys:
-        - discord_ids: Set[int]
-        - nation_names: Set[str]
-        - known_names: Set[str]
-        """
-        self.watchlist = {}
+        self.pool: Optional[asyncpg.Pool] = None # pool for DB connections
+        self.config = {
+            "token" = os.getenv("BOT_TOKEN"),
+            "useragent" = os.getenv("NS_USERAGENT"),
+            "db_host" = os.getenv("POSTGRES_HOST"),
+            "db_port" = os.getenv("POSTGRES_PORT"),
+            "db_name" = os.getenv("POSTGRES_DB"),
+            "db_user" = os.getenv("POSTGRES_USER"),
+            "db_pass" = os.getenv("POSTGRES_PASSWORD")
+        } # fetch config from environment variables
+        self.session = None # aiohttp session for NS API requests
+        self.limiter = AsyncLimiter(25, 30) # rate limiter for NS API requests
 
     async def setup_hook(self) -> None:
         self.pool = await asyncpg.create_pool(
-            dsn=self.config["dsn"],
-        )
+            host = self.config["db_host"],
+            port = self.config["db_port"],
+            user = self.config["db_user"],
+            database = self.config["db_name"],
+            password = self.config["db_pass"]
+        ) # add credentials to the connection pool
         self.session = aiohttp.ClientSession(
             headers={
-                "User-Agent": "Bloo NSV // v.1.4.0 // Owned by nation=united_calanworie"
+                "User-Agent": f"Overseer // {__version__} // Owned by nation={self.config["useragent"]}"
             }
-        )
-        # with open("tables.sql") as f:
-        #     await self.pool.execute(f.read())
+        ) # create a session for connecting to the NS API
 
         for cog in os.listdir("cogs"):
             try:
@@ -49,41 +53,6 @@ class Bloo(commands.Bot):
             except discord.ext.commands.errors.ExtensionFailed as e:
                 print(e)
                 pass
-
-        self.scam_domains = json.load(open("scams.json"))["domains"]
-
-        watchlist = await self.fetch("SELECT * FROM watchlist")
-        discord_ids = set()
-        nation_names = set()
-        known_names = set()
-        for record in watchlist:
-            # TODO: Make this more efficient. Not a top priority as this only runs once on startup.
-            # During bot runtime, the watchlist is stored in memory and persisted to the database by
-            # the watchlist cog. This is only used to load the watchlist into memory on startup, and
-            # therefore can suffer some performance hits for the sake of quick-and-dirty functionality.
-            # It might be worth improving at some point though if startup times become an issue, but
-            # that would only likely happen if the watchlist becomes very large. (Unlikely)
-            for discord_id in record["known_ids"].split(","):
-                try:
-                    discord_ids.add(int(discord_id))
-                except ValueError:
-                    pass
-            for nation_name in record["known_nations"].split(","):
-                try:
-                    nation_names.add(str(nation_name))
-                except ValueError:
-                    pass
-            for known_name in record["known_names"].split(","):
-                try:
-                    known_names.add(str(known_name))
-                except ValueError:
-                    pass
-
-        self.watchlist = {
-            "discord_ids": discord_ids,
-            "nation_names": nation_names,
-            "known_names": known_names,
-        }
 
     async def fetch(self, query: str, *args) -> List[asyncpg.Record]:
         con: asyncpg.Connection
