@@ -89,7 +89,7 @@ class Overseer(commands.Bot): # bot class
     def run(self, *args, **kwargs) -> None:
         super().run(self.config["token"])
 
-handler = logging.handlers.StreamHandler(
+handler = logging.StreamHandler(
     stream=sys.stdout
 )
 
