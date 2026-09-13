@@ -4,14 +4,14 @@ import datetime
 import gzip
 from xml.etree import ElementTree
 import os
-import openpyxl.worksheet.worksheet
 from discord.ext import commands
-from framework.bot import Bloo
-from openpyxl import Workbook
+import sys
+sys.path.append('../')
+from __main__ import Overseer
 
 
 class Developer(commands.Cog):
-    def __init__(self, bot: Bloo):
+    def __init__(self, bot: Overseer):
         self.bot = bot
 
     @staticmethod

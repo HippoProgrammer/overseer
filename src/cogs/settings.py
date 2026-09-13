@@ -2,14 +2,15 @@ import discord
 import asyncpg
 from discord.ext import commands
 from discord import app_commands
-from framework.bot import Bloo
 from typing import List, Optional
-
+import sys
+sys.path.append('../')
+from __main__ import Overseer
 
 def main_settings() -> discord.Embed:
     embed = discord.Embed(
         title="Settings",
-        description="Welcome to Bloo! Configure your settings here.",
+        description="Welcome to Overseer! Configure your settings here.",
         color=discord.Color.random(),
     )
     embed.add_field(
@@ -25,9 +26,9 @@ def main_settings() -> discord.Embed:
     return embed
 
 
-class Prompt(discord.ui.Modal, title="Bloo Configuration"):
+class Prompt(discord.ui.Modal, title="Overseer Configuration"):
 
-    def __init__(self, bot: Bloo, mode: str, current_settings: Optional[List[asyncpg.Record]] = None):
+    def __init__(self, bot: Overseer, mode: str, current_settings: Optional[List[asyncpg.Record]] = None):
         super().__init__()
         self.bot = bot
         self.mode = mode
@@ -141,7 +142,7 @@ class Prompt(discord.ui.Modal, title="Bloo Configuration"):
 
 
 class NSVRoleView(discord.ui.View):
-    def __init__(self, bot: Bloo, current_settings: Optional[List[asyncpg.Record]] = None):
+    def __init__(self, bot: Overseer, current_settings: Optional[List[asyncpg.Record]] = None):
         super().__init__()
         self.bot = bot
         self.internal_settings = current_settings[0] if current_settings else None
@@ -304,7 +305,7 @@ class NSVRoleView(discord.ui.View):
 
 class WelcomeView(discord.ui.View):
 
-    def __init__(self, bot: Bloo, current_settings: Optional[List[asyncpg.Record]] = None):
+    def __init__(self, bot: Overseer, current_settings: Optional[List[asyncpg.Record]] = None):
         super().__init__()
         self.bot = bot
         self.internal_settings = current_settings[0] if current_settings else None
@@ -460,7 +461,7 @@ class WelcomeView(discord.ui.View):
 
 class GuildSettingsView(discord.ui.View):
 
-    def __init__(self, bot: Bloo, current_settings: Optional[List[asyncpg.Record]] = None):
+    def __init__(self, bot: Overseer, current_settings: Optional[List[asyncpg.Record]] = None):
         super().__init__()
         self.bot = bot
         self.internal_settings = current_settings[0] if current_settings else None
@@ -674,7 +675,7 @@ class GuildSettingsView(discord.ui.View):
 
 
 class SettingsView(discord.ui.View):
-    def __init__(self, bot: Bloo):
+    def __init__(self, bot: Overseer):
         super().__init__()
         self.bot = bot
 
@@ -864,7 +865,7 @@ class SettingsView(discord.ui.View):
 
 
 class Settings(commands.Cog):
-    def __init__(self, bot: Bloo):
+    def __init__(self, bot: Overseer):
         self.bot = bot
 
     @app_commands.command(
@@ -878,5 +879,5 @@ class Settings(commands.Cog):
         )
 
 
-async def setup(bot: Bloo):
+async def setup(bot: Overseer):
     await bot.add_cog(Settings(bot))

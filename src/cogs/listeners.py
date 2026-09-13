@@ -1,10 +1,11 @@
 import discord
 from discord.ext import commands
-from framework.bot import Bloo
-from .watchlist import watchlist_embed
+import sys
+sys.path.append('../')
+from __main__ import Overseer
 
 class Listeners(commands.Cog):
-    def __init__(self, bot: Bloo):
+    def __init__(self, bot: Overseer):
         self.bot = bot
 
     @commands.Cog.listener()
@@ -52,5 +53,5 @@ class Listeners(commands.Cog):
                     ).send("# WARNING\nYour welcome channel was deleted, please set a new one with "
                            "</settings:1073064073459142688>")
 
-async def setup(bot: Bloo):
+async def setup(bot: Overseer):
     await bot.add_cog(Listeners(bot))

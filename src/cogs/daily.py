@@ -5,12 +5,15 @@ import gzip
 import json
 from discord.ext import commands
 from discord.ext import tasks
-from framework.bot import Overseer
 from xml.etree import ElementTree
+import sys
+sys.path.append('../')
+from __main__ import Overseer
+
 
 
 class DailyUpdate(commands.Cog):
-    def __init__(self, bot: Bloo):
+    def __init__(self, bot: Overseer):
         self.bot = bot
         self.daily_update.start()
 
@@ -109,5 +112,5 @@ class DailyUpdate(commands.Cog):
     async def before_daily_update(self):
         await self.bot.wait_until_ready()
 
-async def setup(bot: Bloo):
+async def setup(bot: Overseer):
     await bot.add_cog(DailyUpdate(bot))
