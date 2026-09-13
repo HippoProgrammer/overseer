@@ -33,6 +33,13 @@ class Overseer(commands.Bot): # bot class
         self.session = None # aiohttp session for NS API requests
         self.limiter = AsyncLimiter(25, 30) # rate limiter for NS API requests
 
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - %(module)s - %(levelname)s - %(message)s')
+        handler = logging.StreamHandler(stream=sys.stderr)
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+
     async def setup_hook(self) -> None:
         self.pool = await asyncpg.create_pool(
             host = self.config["db_host"],
@@ -46,16 +53,17 @@ class Overseer(commands.Bot): # bot class
                 "User-Agent": f"Overseer // {__version__} // Owned by nation={self.config["useragent"]}"
             }
         ) # create a session for connecting to the NS API
-
+        self.logger.info("Loading cogs...")
+        self.logger.debug(os.listdir("./src/cogs"))
         for cog in os.listdir("./src/cogs"):
             try:
                 if cog.endswith(".py"):
-                    print(f"Loading cog {cog}")
+                    self.logger.info(f"Loading cog {cog}...")
                     await self.load_extension(f"cogs.{cog[:-3]}")
             except discord.ext.commands.errors.NoEntryPointError:
                 pass
             except discord.ext.commands.errors.ExtensionFailed as e:
-                print(e)
+                self.logger.error(e)
                 pass
 
     async def fetch(self, query: str, *args) -> List[asyncpg.Record]:
@@ -91,9 +99,7 @@ class Overseer(commands.Bot): # bot class
     def run(self, *args, **kwargs) -> None:
         super().run(self.config["token"])
 
-handler = logging.StreamHandler(
-    stream=sys.stdout
-)
+handler = logging.StreamHandler(stream=sys.stderr)
 
 if __name__ == "__main__":
     bot = Overseer()

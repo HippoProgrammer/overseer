@@ -56,11 +56,11 @@ class DailyUpdate(commands.Cog):
             guild_id = guild["guild_id"]
             guild_obj: discord.Guild = self.bot.get_guild(guild_id)
             if guild_obj is None:
-                print("Could not find guild, skipping...")
+                self.bot.logger.info("Could not find guild, skipping...")
                 continue
             if not guild_obj.chunked:
                 await guild_obj.chunk()
-            print(f"Now updating {guild_obj.name} | ID: ({guild_id})")
+            self.bot.logger.info(f"Now updating {guild_obj.name} | ID: ({guild_id})")
             settings = await self.bot.fetch(
                 "SELECT * FROM nsv_settings WHERE guild_id = $1", guild_id
             )
@@ -80,7 +80,7 @@ class DailyUpdate(commands.Cog):
                     guild_id,
                 )
                 if not vals:
-                    print("No nations found, skipping...")
+                    self.bot.logger.info("No nations found, skipping...")
                     continue
                 else:
                     for val in vals:
@@ -89,7 +89,7 @@ class DailyUpdate(commands.Cog):
                             val["nation"],
                         )
                         if not record:
-                            print("Nation has CTEd, skipping...")
+                            self.bot.logger.info("Nation has CTEd, skipping...")
                             continue
                         else:
                             if record[0]["region"] in set_region:
@@ -102,8 +102,8 @@ class DailyUpdate(commands.Cog):
                     discord_id,
                     guild_id,
                 )
-            print(f"Updated {guild_obj.name} | ID: ({guild_id})")
-        print("Finished daily update.")
+            self.bot.logger.info(f"Updated {guild_obj.name} | ID: ({guild_id})")
+        self.bot.logger.info("Finished daily update.")
 
     @daily_update.before_loop
     async def before_daily_update(self):
