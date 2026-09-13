@@ -8,11 +8,13 @@ services: # define services
         condition: service_healthy
     restart: always # if errors occur, restart
     env_file:
-      - path: "./conf/db-config.env" # pass db config to container
       - path: "./conf/bot-config.env"
     environment: # pass location of db to the container
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
+      POSTGRES_DB: overseer
+      POSTGRES_USER: overseer
+      POSTGRES_PASSWORD: overseer
     networks: # allow the two containers to communicate
       - db
 
@@ -21,14 +23,17 @@ services: # define services
     image: postgres:18.6-alpine3.23 # use the latest Postgres Alpine image
     shm_size: 128mb # define a memory limit
     restart: always # restart if errors occur
-    env_file: "./conf/db-config.env"
+    environment:
+      POSTGRES_DB: overseer
+      POSTGRES_USER: overseer
+      POSTGRES_PASSWORD: overseer
     volumes: # map a volume to the Postgres data directory
       - db-data:/var/lib/postgresql # data
       - ./sql:/docker-entrypoint-initdb.d # initialization scripts
     networks: # allow the two containers to communicate
       - db
     healthcheck: # set up a health check to confirm when the DB is ready
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U overseer"]
       interval: 10s
       timeout: 5s
       retries: 5
